@@ -83,7 +83,7 @@ Every Deployment is named `spread-demo` and has the label `app=spread-demo`. We 
 Count pods per node:
 
 ```bash
-kubectl get pods -l app=spread-demo -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort | uniq -c
+kubectl get pods -l app=spread-demo -o json | ConvertFrom-Json | ForEach-Object { $_.items } | ForEach-Object { $pod = $_; $node = kubectl get node $pod.spec.nodeName -o json | ConvertFrom-Json; [PSCustomObject]@{ Pod = $pod.metadata.name; Node = $pod.spec.nodeName; Zone = $node.metadata.labels.'topology.kubernetes.io/zone' } } | Format-Table -AutoSize
 ```
 
 See each pod, its status, and its node:
